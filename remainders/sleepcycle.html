@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Navbar */
+        .navbar {
+            width: 100%;
+            background-color:#364969;
+            padding: 15px;
+            text-align: center;
+            color: rgb(245, 242, 242);
+            font-size: 22px;
+            font-weight: bold;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .home-btn {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #D3D3D3;
+            color: #243162;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+    
+        .home-btn:hover {
+            background-color: #b0b0b0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://media.istockphoto.com/id/1361759855/photo/the-circadian-rhythms-are-controlled-by-circadian-clocks-or-biological-clock.jpg?s=612x612&w=0&k=20&c=0JfF5KADHesSRzcGqtBazrNmaFWH33t7RQ3RaQ7V5MY=') 
+                no-repeat center center fixed;
+            background-size: cover;
+            filter: blur(3px);
+            z-index: -1;
+        }
+        body {
+            background: url('') no-repeat center center fixed;
+            background-size: cover;
+        }
+        
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2E5077;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .sleep-duration {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2E5077;
+            margin-bottom: 15px;
+        }
+        label {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+        input[type="time"] {
+            font-size: 16px;
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #2E5077;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #1d3a56;
+        }
+        .comment {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2E5077;
+        }
+        .chart-container {
+            display: none;
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">Health Tracker</div>
+    <div class="navbar">
+        <div style="display: inline-block;">SleepCycle Tracker</div>
+        <a href="../remainders/index.html" class="home-btn">Back</a>
+    </div>
+
+    <div class="container">
+        <h1>Sleep Tracker</h1>
+        <div class="sleep-duration" id="totalSleep">Total Sleep: -- hrs</div>
+
+        <label for="bedtime">Bedtime</label>
+        <input type="time" id="bedtime">
+
+        <label for="waketime">Wake Time</label>
+        <input type="time" id="waketime">
+
+        <button onclick="calculateSleepTime()">Track Sleep</button>
+        <button onclick="showSleepGraph()">View Sleep Data</button>
+
+        <div class="comment" id="sleepComment"></div>
+    </div>
+
+    <div class="chart-container" id="chartContainer">
+        <canvas id="sleepChart"></canvas>
+    </div>
+
+    <script>
+        function calculateSleepTime() {
+            let bedtime = document.getElementById('bedtime').value;
+            let waketime = document.getElementById('waketime').value;
+
+            if (!bedtime || !waketime) {
+                alert("Please enter both bedtime and wake time.");
+                return;
+            }
+
+            let bedtimeDate = new Date(`1970-01-01T${bedtime}:00`);
+            let waketimeDate = new Date(`1970-01-01T${waketime}:00`);
+
+            // Handle crossing midnight
+            if (waketimeDate < bedtimeDate) {
+                waketimeDate.setDate(waketimeDate.getDate() + 1); 
+            }
+
+            let sleepDuration = (waketimeDate - bedtimeDate) / (1000 * 60 * 60); // Convert ms to hours
+            let comment = "";
+
+            if (sleepDuration < 3) {
+                comment = `Only ${sleepDuration.toFixed(2)} hrs? 😱 Too little! Try to sleep more.`;
+            } else if (sleepDuration < 5) {
+                comment = `${sleepDuration.toFixed(2)} hrs? 😟 Not enough, expect tiredness.`;
+            } else if (sleepDuration < 6) {
+                comment = `${sleepDuration.toFixed(2)} hrs. 😕 Below recommended, try to sleep more.`;
+            } else if (sleepDuration < 7) {
+                comment = `${sleepDuration.toFixed(2)} hrs. 🙂 Almost there! Try for more rest.`;
+            } else if (sleepDuration < 8) {
+                comment = `${sleepDuration.toFixed(2)} hrs. 😃 Good job! Decent sleep.`;
+            } else if (sleepDuration < 9) {
+                comment = `${sleepDuration.toFixed(2)} hrs. 🌟 Perfect! Ideal sleep.`;
+            } else {
+                comment = `${sleepDuration.toFixed(2)} hrs. 😴 Maybe too much sleep? Balance is key.`;
+            }
+
+            document.getElementById('totalSleep').textContent = `Total Sleep: ${sleepDuration.toFixed(2)} hrs`;
+            document.getElementById('sleepComment').textContent = comment;
+
+            saveSleepData(sleepDuration);
+        }
+
+        function saveSleepData(sleepDuration) {
+            let sleepData = JSON.parse(localStorage.getItem('sleepData')) || [];
+            let today = new Date().toLocaleDateString('en-US');
+            
+            let existingEntry = sleepData.find(entry => entry.date === today);
+            if (existingEntry) {
+                existingEntry.hours = sleepDuration;
+            } else {
+                if (sleepData.length >= 7) sleepData.shift();
+                sleepData.push({ date: today, hours: sleepDuration });
+            }
+
+            localStorage.setItem('sleepData', JSON.stringify(sleepData));
+        }
+
+        function showSleepGraph() {
+            let sleepData = JSON.parse(localStorage.getItem('sleepData')) || [];
+            if (sleepData.length === 0) {
+                alert("No sleep data available for the week.");
+                return;
+            }
+
+            let labels = sleepData.map(entry => entry.date);
+            let hours = sleepData.map(entry => entry.hours);
+
+            let ctx = document.getElementById('sleepChart').getContext('2d');
+            document.getElementById('chartContainer').style.display = 'block';
+
+            if (window.sleepChart) {
+                window.sleepChart.destroy();
+            }
+
+            window.sleepChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sleep Hours',
+                        data: hours,
+                        borderColor: '#2E5077',
+                        backgroundColor: 'rgba(46, 80, 119, 0.2)',
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 10
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

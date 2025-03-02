@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LongTerm Alerts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        body {
+            background: url('https://www.shutterstock.com/image-vector/3d-calendar-icon-marked-date-600nw-2350880883.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.shutterstock.com/image-vector/3d-calendar-icon-marked-date-600nw-2350880883.jpg') 
+                no-repeat center center fixed;
+            background-size: cover;
+            filter: blur(3px);
+            z-index: -1;
+        }
+        
+        /* Navbar Styling */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #364969;
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .navbar .left button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .navbar .center {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .navbar .right button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Form Styling */
+        .form-container {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: 20px auto;
+        }
+
+        .form-container label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        .form-container input, 
+        .form-container select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .date-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .date-container select {
+            flex: 1;
+        }
+
+        .form-container button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .form-container button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Saved Reminders Styling */
+        #reminderList {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .reminder-item {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .delete-btn {
+            color: red;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="left">
+            <button onclick="goBack()">&#8592;</button>
+        </div>
+        <div class="center">
+            LongTerm Alerts
+        </div>
+        <div class="right">
+            <button onclick="toggleForm()">Add Data</button>
+        </div>
+    </div>    
+        
+    <!-- Form (Initially Hidden) -->
+    <div class="form-container" id="vaccineForm">
+        <label for="vaccineName">Vaccine Name:</label>
+        <input type="text" id="vaccineName" placeholder="Enter vaccine name">
+
+        <label for="vaccineDate">Select Vaccine Date:</label>
+        <div class="date-container">
+            <select id="vaccineDate">
+                <option value="" disabled selected>DD</option>
+                <script>
+                    for (let i = 1; i <= 31; i++) {
+                        document.write(`<option value="${i}">${i}</option>`);
+                    }
+                </script>
+            </select>
+
+            <select id="vaccineMonth">
+                <option value="" disabled selected>MM</option>
+                <script>
+                    const months = [
+                        "January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"
+                    ];
+                    months.forEach((month, index) => {
+                        document.write(`<option value="${index + 1}">${month}</option>`);
+                    });
+                </script>
+            </select>
+
+            <select id="vaccineYear">
+                <option value="" disabled selected>YYYY</option>
+                <script>
+                    let currentYear = new Date().getFullYear();
+                    for (let i = currentYear; i <= currentYear + 15; i++) {
+                        document.write(`<option value="${i}">${i}</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+
+        <button onclick="submitData()">Submit</button>
+    </div>
+
+    <!-- Display Saved Reminders -->
+    <div id="reminderList"></div>
+
+    <script>
+        function goBack() {
+            window.location.href = "index.html";
+        }
+
+        function toggleForm() {
+            let form = document.getElementById("vaccineForm");
+            form.style.display = form.style.display === "none" || form.style.display === "" ? "block" : "none";
+        }
+
+        function submitData() {
+            let vaccineName = document.getElementById("vaccineName").value.trim();
+            let vaccineDate = document.getElementById("vaccineDate").value;
+            let vaccineMonth = document.getElementById("vaccineMonth").value;
+            let vaccineYear = document.getElementById("vaccineYear").value;
+
+            if (!vaccineName || !vaccineDate || !vaccineMonth || !vaccineYear) {
+                alert("Please fill all fields!");
+                return;
+            }
+
+            let vaccineData = { vaccineName, date: `${vaccineDate}/${vaccineMonth}/${vaccineYear}` };
+            let reminders = JSON.parse(localStorage.getItem("vaccinationReminders")) || [];
+            reminders.push(vaccineData);
+            localStorage.setItem("vaccinationReminders", JSON.stringify(reminders));
+
+            document.getElementById("vaccineForm").style.display = "none";
+            loadReminders();
+        }
+
+        function loadReminders() {
+            let reminders = JSON.parse(localStorage.getItem("vaccinationReminders")) || [];
+            let listContainer = document.getElementById("reminderList");
+            listContainer.innerHTML = reminders.length ? reminders.map((rem, index) => 
+                `<div class="reminder-item">
+                    <strong>${rem.vaccineName}</strong> - ${rem.date}
+                    <span class="delete-btn" onclick="deleteReminder(${index})">✖</span>
+                </div>`
+            ).join("") : "<p>No reminders yet.</p>";
+        }
+
+        function deleteReminder(index) {
+            let reminders = JSON.parse(localStorage.getItem("vaccinationReminders")) || [];
+            reminders.splice(index, 1);
+            localStorage.setItem("vaccinationReminders", JSON.stringify(reminders));
+            loadReminders();
+        }
+
+        window.onload = loadReminders;
+    </script>
+
+</body>
+</html>

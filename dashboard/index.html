@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Companion Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #F6F4F0;
+      color: #2E5077;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #2E5077;
+      padding: 1rem 2rem;
+      color: white;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      margin: 0 1rem;
+    }
+
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      overflow: hidden;
+    }
+
+    .carousel {
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+
+    .carousel-item {
+      flex: 0 0 100%;
+      height: 90vh;
+    }
+
+    .carousel-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .carousel-btn.left {
+      left: 10px;
+    }
+
+    .carousel-btn.right {
+      right: 10px;
+    }
+    .parent {
+      display: flex;
+      justify-content: space-between; /* Adds space between items */
+      gap: 2rem; /* Adds space between each item */
+      padding: 2rem; /* Adds some padding around the container */
+    }
+    
+    .image-container {
+      width: 27%; /* Adjust the width of each item */
+      text-align: center; /* Centers text inside the image-container */
+    }
+    
+    .image-container img {
+      width: 130px; /* Sets a fixed width for the image */
+      height: 130px; /* Sets a fixed height for the image */
+      object-fit: cover; /* Ensures the image fits without distortion */
+      border-radius: 50%; /* Makes the image circular */
+      margin-bottom: 1rem; /* Adds space below the image */
+    }
+    .img-head {
+      display: flex;
+      justify-content: flex-start;
+
+      gap: 220px; 
+      padding: 0; 
+    }
+    
+    .img {
+      max-width: 80px; 
+      height: 250px;
+      margin: 0; 
+    }
+    
+    .img img {
+      height: 200px;
+      width: auto;
+      object-fit: contain;
+    }
+    .chatbot-icon {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      background: url('https://media.istockphoto.com/id/1409839764/vector/cute-little-robot-smiling-robotics-and-technology-kawaii-robot.jpg?s=612x612&w=0&k=20&c=qV3NO5VjN6UWdqWXDaKoFEAxt2o0ak0_jQRmM_JVGV4=') no-repeat center center;
+      background-size: cover;
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      border: 5px solid #0a3160;; /* Added black border */
+    }
+
+    .chatbot-icon:hover::after {
+      content: 'AI Assistance';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2E5077;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">Health Companion</div>
+  <div>
+    <a href="../vault/frontend/index.html">Prescription Vault</a>
+    <a href="../remainders/index.html">Reminders</a>
+    <a href="../contactinfo/emergency.html">Hospital Locations</a>
+    <a href="../blogs/blogs.html">Blogs</a>
+    <a href="../profile/index.html">Profile</a>
+  </div>
+</nav>
+
+<div class="carousel-container">
+  <div class="carousel">
+    <div class="carousel-item"><img src="https://images.pexels.com/photos/4989186/pexels-photo-4989186.jpeg" alt="Image 1"></div>
+    <div class="carousel-item"><img src="https://naturaespath.com/wp-content/uploads/2016/12/Healing-quote-4.jpg" alt="Image 2"></div>
+    <div class="carousel-item"><img src="https://wallpapers.com/images/high/cool-medical-and-health-symbols-yk9ofybop75souw0.webp" alt="Image 3"></div>
+    <div class="carousel-item"><img src="https://img.freepik.com/free-photo/stethoscope-pen-blank-prescription-pad-medicine-pharmacy-concept-empty-medical-form-ready-be-used-modern-medical-information-technology_1150-44777.jpg" alt="Image 4"></div>
+  </div>
+  <button class="carousel-btn left" onclick="changeSlide(-1)">&#10094;</button>
+  <button class="carousel-btn right" onclick="changeSlide(1)">&#10095;</button>
+</div>
+<div class="parent">
+  <div class="image-container">
+    <img src="https://www.pharmacytomydoor.co.uk/wp-content/uploads/2022/09/What-can-I-do-about-my-repeat-prescription-1024x764.jpg" alt="Curriculum Image">
+    <h3>Prescription Vault</h3>
+    <p>Your personal health library, securely storing prescriptions and medical records for easy access and peace of mind.</p>
+  </div>
+  <div class="image-container">
+    <img src="https://thumbs.dreamstime.com/b/pill-time-icon-pill-time-icon-medical-pills-clock-vector-illustration-flat-style-design-isolated-white-colorful-graphics-198416754.jpg" alt="Curriculum Image">
+    <h3>Remainders</h3>
+    <p>Automated reminders and caregiver 
+      notifications for missed doses.Manage immunization records and send 
+      reminders.</p>
+  </div>
+  <div class="image-container">
+    <img src="https://thumbs.dreamstime.com/b/menstrual-cycle-diagram-fertility-window-hormonal-regulation-follicular-phase-to-ovulation-luteal-menstruation-vector-338466341.jpg" alt="Curriculum Image">
+    <h3>PMS Cycle</h3>
+    <p>An application helps users monitor and manage their premenstrual syndrome (PMS) symptoms, cycle patterns, and related health data to better understand.</p>
+  </div>
+  <div class="image-container">
+    <img src="https://www.shutterstock.com/image-illustration/navigation-map-showing-closest-hospital-260nw-1086663140.jpg" alt="Curriculum Image">
+    <h3>
+    Near by hospital Tracking</h3>
+    <p>A nearby hospital tracking application helps users quickly locate and access information about the closest hospitals, emergency services, and medical centers.</p>
+  </div>
+</div>
+<div class="img-head">
+  <div class="img">
+    <img src="https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg?auto=compress&cs=tinysrgb&w=600"style="height: 250px; width: 300px;">
+  </div>
+  <div class="img">
+    <img src="https://images.pexels.com/photos/2821823/pexels-photo-2821823.jpeg?auto=compress&cs=tinysrgb&w=600"style="height: 250px; width: 300px;">
+  </div>
+  <div class="img">
+    <img src="https://images.pexels.com/photos/5319390/pexels-photo-5319390.jpeg?auto=compress&cs=tinysrgb&w=600"style="height: 250px; width: 300px;">
+  </div>
+  <div class="img">
+    <img src="https://images.pexels.com/photos/17272207/pexels-photo-17272207/free-photo-of-a-group-of-cyclists-riding-down-a-road.jpeg?auto=compress&cs=tinysrgb&w=600" style="height: 250px; width: 300px;">
+  </div>
+  <div class="img">
+    <img src="https://androclue.com/wp-content/uploads/2022/03/healthy.jpg" style="height: 250px; width: 300px;">
+  </div>
+</div>
+
+<a href="http://127.0.0.1:5000">
+  <div class="chatbot-icon"></div>
+</a>
+
+<script>
+  let currentSlide = 0;
+  const carousel = document.querySelector('.carousel');
+  const slides = document.querySelectorAll('.carousel-item');
+
+  function changeSlide(direction) {
+    currentSlide += direction;
+
+    if (currentSlide < 0) {
+      currentSlide = slides.length - 1;
+    } else if (currentSlide >= slides.length) {
+      currentSlide = 0;
+    }
+
+    carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+  }
+
+  setInterval(() => {
+    changeSlide(1);
+  }, 3000);
+</script>
+
+</body>
+</html>

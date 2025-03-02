@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Medication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+        body {
+            background: url('https://plus.unsplash.com/premium_photo-1668898899024-02f028349666?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bWVkaWNhbCUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            background-color: #2f406d;
+            padding: 10px 20px;
+            color: white;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .navbar a:hover {
+            background-color: #575757;
+        }
+        .content {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div><a href="medications.html" id="cancelBtn">Cancel</a></div>
+        <div>Add Medication</div>
+        <div><a href="#" id="saveBtn">Save</a></div>
+    </div>
+
+    <!-- Input Form -->
+    <div class="content">
+        <div class="form-group">
+            <label for="medicationName">Name:</label>
+            <input type="text" id="medicationName" placeholder="Enter medication name" required>
+        </div>
+        <div class="form-group">
+            <label for="medicationDose">Dose:</label>
+            <input type="text" id="medicationDose" placeholder="e.g. 3 pills" required>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("saveBtn").addEventListener("click", function() {
+            const name = document.getElementById("medicationName").value.trim();
+            const dose = document.getElementById("medicationDose").value.trim();
+
+            if (name && dose) {
+                let medications = JSON.parse(localStorage.getItem("medications")) || [];
+                medications.push({ name, dose });
+                localStorage.setItem("medications", JSON.stringify(medications));
+
+                // Redirect to medications page
+                window.location.href = "medications.html";
+            } else {
+                alert("Please enter both Name and Dose.");
+            }
+        });
+    </script>
+
+
+</body>
+</html>

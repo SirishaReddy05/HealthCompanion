@@ -1,0 +1,249 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Search in Hyderabad</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav {
+      background-color: #2E5077;
+      padding: 10px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    nav ul li {
+      display: inline;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+    }
+
+    #map {
+      height: 500px;
+      width: 100%;
+    }
+
+    #controls {
+      margin: 20px 0;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    #search {
+      padding: 10px;
+      width: 300px;
+    }
+
+    #clear, #filter-24-7 {
+      padding: 10px 15px;
+      background-color: #2E5077;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #clear:hover, #filter-24-7:hover {
+      background-color: #1E3D59;
+    }
+
+    .hospital-list {
+      margin-top: 20px;
+      padding: 10px;
+    }
+
+    .hospital-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li class="nav-center"><a href="#">Hospital Search</a></li>
+    </ul>
+    <div style="flex-grow: 1;"></div>
+    <ul>
+      <li><a href="../dashboard/index.html">Home</a></li>
+    </ul>
+  </nav>
+
+  <div id="controls">
+    <input type="text" id="search" placeholder="Search for a hospital...">
+    <button id="clear">Clear</button>
+    <button id="filter-24-7">Show 24/7 Hospitals</button>
+  </div>
+  <div id="map"></div>
+  <div id="hospital-list" class="hospital-list"></div>
+
+  <script>
+    let hospitalsData = [];
+    let map;
+    let markers = [];
+
+    async function fetchHospitals() {
+      const overpassUrl = "https://overpass-api.de/api/interpreter";
+      const query = `
+        [out:json][timeout:25];
+        area["name"="Hyderabad"]->.hyderabad;
+        (
+          node["amenity"="hospital"](area.hyderabad);
+          way["amenity"="hospital"](area.hyderabad);
+          relation["amenity"="hospital"](area.hyderabad);
+        );
+        out body;
+        >;
+        out skel qt;
+      `;
+
+      try {
+        const response = await fetch(overpassUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `data=${encodeURIComponent(query)}`,
+        });
+
+        const data = await response.json();
+        hospitalsData = data.elements;
+      } catch (error) {
+        console.error("Error fetching data from Overpass API:", error);
+      }
+    }
+
+    function initializeMap() {
+      map = L.map("map").setView([17.3850, 78.4867], 12);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+      }).addTo(map);
+    }
+
+    function handleSearch() {
+      const searchTerm = document.getElementById("search").value.toLowerCase();
+      const matchingHospitals = hospitalsData.filter((hospital) => {
+        const name = hospital.tags?.name?.toLowerCase() || "";
+        return name.includes(searchTerm);
+      });
+
+      if (matchingHospitals.length > 0) {
+        showHospitalsOnMap(matchingHospitals);
+        showHospitalList(matchingHospitals);
+      } else {
+        alert("No hospitals found. Please try another name.");
+      }
+    }
+
+    function filter24x7Hospitals() {
+      const filteredHospitals = hospitalsData.filter((hospital) => {
+        const openingHours = hospital.tags?.opening_hours || "";
+        const emergency = hospital.tags?.emergency === "yes";
+        return openingHours.includes("24/7") || emergency;
+      });
+
+      if (filteredHospitals.length > 0) {
+        showHospitalsOnMap(filteredHospitals);
+        showHospitalList(filteredHospitals);
+      } else {
+        alert("No 24/7 hospitals found.");
+      }
+    }
+
+    function showHospitalsOnMap(hospitals) {
+      markers.forEach((marker) => marker.remove());
+      markers = [];
+
+      hospitals.forEach((hospital) => {
+        const lat = hospital.lat || hospital.center?.lat;
+        const lon = hospital.lon || hospital.center?.lon;
+
+        if (lat && lon) {
+          const marker = L.marker([lat, lon])
+            .addTo(map)
+            .bindPopup(
+              `<strong>${hospital.tags?.name || "Unnamed Hospital"}</strong><br>
+              ${hospital.tags?.["addr:full"] || "Address not available"}<br>
+              ${hospital.tags?.["contact:phone"] ? "Phone: " + formatPhoneNumber(hospital.tags["contact:phone"]) : ""}`
+            );
+
+          markers.push(marker);
+        }
+      });
+
+      if (markers.length > 0) {
+        const group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds());
+      }
+    }
+
+    function formatPhoneNumber(phone) {
+      if (!phone) return "Phone number not available";
+      if (/^\d{8}$/.test(phone)) return phone + " (Add 040)";
+      return phone;
+    }
+
+    function showHospitalList(hospitals) {
+      const hospitalListDiv = document.getElementById("hospital-list");
+      hospitalListDiv.innerHTML = "<h2>Matching Hospitals</h2>";
+
+      hospitals.forEach((hospital) => {
+        const name = hospital.tags?.name || "Unnamed Hospital";
+        const address = hospital.tags?.["addr:full"] || "Address not available";
+        const phone = hospital.tags?.["contact:phone"] || "Phone number not available";
+
+        const hospitalItem = document.createElement("div");
+        hospitalItem.className = "hospital-item";
+        hospitalItem.innerHTML = `
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Address:</strong> ${address}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+        `;
+
+        hospitalListDiv.appendChild(hospitalItem);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initializeMap();
+      fetchHospitals();
+      document.getElementById("search").addEventListener("keyup", handleSearch);
+      document.getElementById("clear").addEventListener("click", () => {
+        document.getElementById("search").value = "";
+        showHospitalsOnMap(hospitalsData);
+        showHospitalList(hospitalsData);
+      });
+      document.getElementById("filter-24-7").addEventListener("click", filter24x7Hospitals);
+    });
+  </script>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+</html>
